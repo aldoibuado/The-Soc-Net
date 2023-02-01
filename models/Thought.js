@@ -3,40 +3,31 @@ const { Schema, model, Types } = require("mongoose");
 const moment = require("moment");
 
 // reaction schema
-const reactionSchema = new Schema(
-  {
-    reactionId: {
-      // Mongoose ObjectId data type
-      type: Schema.Types.ObjectId,
-      // The default value is set to new ObjectId
-      default: () => new Types.ObjectId(),
-    },
-    reactionBody: {
-      type: String,
-      required: true,
-      maxlength: 280,
-    },
-    username: {
-      type: String,
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      // Will set default value to current timestamp
-      default: Date.now(),
-      // Use a getter method to format the timestamp on query
-      get: (createdAtVal) =>
-        moment(createdAtVal).format("MMMM Do YYYY, h:mm:ss a"),
-    },
+const reactionSchema = new Schema({
+  reactionId: {
+    // Mongoose ObjectId data type
+    type: Schema.Types.ObjectId,
+    // The default value is set to new ObjectId
+    default: () => new Types.ObjectId(),
   },
-  {
-    toJSON: {
-      virtuals: true,
-      getters: true,
-    },
-    id: false,
-  }
-);
+  reactionBody: {
+    type: String,
+    required: true,
+    maxlength: 280,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    // Will set default value to current timestamp
+    default: Date.now(),
+    // Use a getter method to format the timestamp on query
+    get: (createdAtVal) =>
+      moment(createdAtVal).format("MMMM Do YYYY, h:mm:ss a"),
+  },
+});
 
 const thoughtSchema = new Schema(
   {
@@ -69,7 +60,7 @@ const thoughtSchema = new Schema(
 );
 
 // Create a virtual property `reactionCount` that gets the amount of reactions
-thoughtSchema.virutal("reactionCount").get(function () {
+thoughtSchema.virtual("reactionCount").get(function () {
   return this.reaction.length;
 });
 
