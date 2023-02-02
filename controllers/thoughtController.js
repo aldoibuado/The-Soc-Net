@@ -4,8 +4,20 @@ module.exports = {
     // Get all thoughts
     getThoughts(req, res) {
         Thought.find({})
+        .populate({
+            path: "reactions",
+            select: "-__v",
+        })
+        // .populate({
+        //     path: "thoughtText",
+        //     select: "-__v",
+        // })
+        .select("-__v")
          .then((thought) => res.json(thought))
-         .catch((err) => res.status(500).json(err));
+         .catch((err) => {
+            console.log(err)
+            res.status(400).json(err);
+         })
     },
     // Get a single thought
     getThought(req, res) {
@@ -19,20 +31,24 @@ module.exports = {
           .catch((err) => res.status(500).json(err));
     },
     // Create thought
-    createThought(req, res) {
-        Thought.create(req.body)
-          .then(({ _id }) => {
+    createThought({ body }, res) {
+        console.log(body)
+        Thought.create(body)
+          .then((thoughtData) => {
             return User.findOneAndUpdate(
-                { _id: req.params.userId },
-                { $push: { thoughts: _id } },
+                { _id: body.userId },
+                { $push: { thoughts: thoughtData._id } },
                 { new: true }
             );
-          })
-          .then((thought) => 
-          !thought
-            ? res.status(404).json({ message: "No user with this ID!" })
-            : res.json(thought)
-          )
-          .catch((err) => res.status(500).json(err));
+            })
+          .then(thought => {
+          if (!thought) {
+            res.status(404).json({ message: "No user with this ID! change" })
+            return;
+          }
+             res.json(thought);
+        })
+          .catch((err) => res.json(err));
     },
 }
+
