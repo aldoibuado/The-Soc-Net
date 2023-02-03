@@ -3,7 +3,8 @@ const { Schema, model, Types } = require("mongoose");
 const moment = require("moment");
 
 // reaction schema
-const reactionSchema = new Schema({
+const reactionSchema = new Schema(
+  {
   reactionId: {
     // Mongoose ObjectId data type
     type: Schema.Types.ObjectId,
@@ -13,6 +14,7 @@ const reactionSchema = new Schema({
   reactionBody: {
     type: String,
     required: true,
+    minlength: 1,
     maxlength: 280,
   },
   username: {
@@ -25,17 +27,24 @@ const reactionSchema = new Schema({
     default: Date.now(),
     // Use a getter method to format the timestamp on query
     get: (createdAtVal) =>
-      moment(createdAtVal).format("MMMM Do YYYY, h:mm:ss a"),
+      moment(createdAtVal).format("MMMM Do, YYYY [at] hh:mm a"),
   },
-});
+  }, 
+  {
+    toJSON: {
+      virtuals: true,
+    },
+    id: false,
+  }
+);
 
 const thoughtSchema = new Schema(
   {
     thoughtText: {
       type: String,
       required: true,
-      maxlength: 250,
       minlength: 1,
+      maxlength: 280,
     },
     createdAt: {
       type: Date,
@@ -43,7 +52,7 @@ const thoughtSchema = new Schema(
       default: Date.now(),
       // Use a getter method to format the timestamp on query
       get: (createAtVal) =>
-        moment(createAtVal).format("MMMM Do YYYY, h:mm:ss a"),
+        moment(createAtVal).format("MMMM Do, YYYY [at] hh:mm a"),
     },
     username: {
       type: String,
@@ -61,7 +70,7 @@ const thoughtSchema = new Schema(
 
 // Create a virtual property `reactionCount` that gets the amount of reactions
 thoughtSchema.virtual("reactionCount").get(function () {
-  return this.reaction.length;
+  return this.reactions.length;
 });
 
 const Thought = model("Thought", thoughtSchema);
