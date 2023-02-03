@@ -4,18 +4,19 @@ module.exports = {
   // Get all thoughts
   getThoughts(req, res) {
     Thought.find({})
-        .populate({path: 'reactions', select: '-__v'})
-        .select('-__v')
-        // .sort({_id: -1})
-        .then(dbThoughtsData => res.json(dbThoughtsData))
-        .catch(err => {
-            console.log(err);
-            res.status(500).json(err);
-        });
+      .then((thought) => res.json(thought))
+      .catch((err) => res.status(500).json(err));
   },
   // Get single thought
   getThought(req, res) {
-   
+   Thought.findOne({ _id: req.params.thoughtId })
+    .select('-__v')
+    .then((thought) => 
+     !thought
+      ? res.status(404).json({ message: 'No thought with this ID' })
+      : res.json(thought)
+    )
+    .catch((err) => res.status(500).json(err));
   },
   // Create a thought
   createThought(req, res) {
